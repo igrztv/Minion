@@ -1,0 +1,34 @@
+#ifndef VIDEO_H
+#define VIDEO_H
+
+#include <iostream>
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+
+using namespace cv;
+using namespace std;
+
+class Video
+{
+
+public:
+	vector<uchar> buff;//buffer for coding
+
+	Video();
+	Video(int camera) : Camera(camera) {};
+	~Video();
+	int OpenCamera(int camera = 0);
+	int GetFrame(uint8_t* jpegBuff);
+	int CloseCamera();
+
+private:
+	vector<int> param;
+	VideoCapture cap;
+
+	int Camera;
+};
+
+#endif
+		
+

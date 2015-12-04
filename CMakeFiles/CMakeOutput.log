@@ -1,0 +1,27 @@
+The system is: Linux - 3.0.75-robroyhall-odroidx2 - armv7l
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/gcc 
+Build flags: -march=armv7-a;-mfloat-abi=hard;-mfpu=neon;-ftree-vectorize;-mvectorize-with-neon-quad;-mtune=cortex-a9;-fvisibility=default;-mthumb;-ffast-math;-O3;-pipe;-fstack-protector;--param=ssp-buffer-size=4;-fPIC;-D_FORTIFY_SOURCE=2;
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/linaro/projects/Minion/CMakeFiles/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/c++ 
+Build flags: -march=armv7-a;-mfloat-abi=hard;-mfpu=neon;-ftree-vectorize;-mvectorize-with-neon-quad;-mtune=cortex-a9;-fvisibility=default;-mthumb;-ffast-math;-O3;-pipe;-fstack-protector;--param=ssp-buffer-size=4;-fPIC;-D_FORTIFY_SOURCE=2;
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/linaro/projects/Minion/CMakeFiles/CompilerIdCXX/a.out"
+
