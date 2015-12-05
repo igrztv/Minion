@@ -20,7 +20,7 @@ using namespace cv;
 class Robot : public Serial
 {
 private:
-	//Serial Port; //не удалять до проверки подключения робота
+	//Serial Port; //Г­ГҐ ГіГ¤Г Г«ГїГІГј Г¤Г® ГЇГ°Г®ГўГҐГ°ГЄГЁ ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ГЁГї Г°Г®ГЎГ®ГІГ 
 
 	struct MoveStage
 	{
@@ -33,7 +33,7 @@ private:
 		GameObject::MotionPoint position;
 	};
 	
-	//bool connected;//не удалять до проверки подключения робота
+	//bool connected;//Г­ГҐ ГіГ¤Г Г«ГїГІГј Г¤Г® ГЇГ°Г®ГўГҐГ°ГЄГЁ ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ГЁГї Г°Г®ГЎГ®ГІГ 
 
 	GameObject::MotionPoint position;//current position of robot
 
@@ -87,6 +87,7 @@ public:
 	//bool isConnected(){ return connected; };
 
 	Video camera;
+	Video selfie;
 	Lidar lidar;
 	//GameObject *gameObjects[2];
 	void correlation();

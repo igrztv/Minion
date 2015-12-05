@@ -81,51 +81,6 @@ void Robot::move()
 	move(speed.left, speed.right);
 }
 
-void Robot::move(int speed0, int speed1)
-{
-	byte command[5] = {MOVE, 0x00, 0x00, 0x00, 0x00};
-	int tmp = abs(speed0);
-	if(tmp > 255)
-		command[1] = 0xFF;
-	else
-		command[1] = tmp & 0xFF;
-	command[1] = command[1] * speed.koef;
-	 
-	if(speed0 == 0)
-		if(speed.leftWheel > 0)
-			command[2] = 200;
-		else
-			command[2] = 20;
-	else
-		if(speed0 >= 0)
-			command[2] = 200;
-		else
-			command[2] = 20;
-
-	tmp = abs(speed1);
-	if(tmp > 255)
-		command[3] = 0xFF;
-	else
-		command[3] = tmp & 0xFF;
-	command[3] = command[3] * speed.koef;
-		
-	if(speed1 == 0)
-		if(speed.rightWheel > 0)
-			command[4] = 200;
-		else
-			command[4] = 20;
-	else
-		if(speed1 >= 0)
-			command[4] = 200;
-		else
-			command[4] = 20;
-
-	writeData(command, 5);
-	
-	speed.leftWheel = speed0;
-	speed.rightWheel = speed1;
-}
-
 void Robot::stop()
 {
 	byte command[5] = {MOVE, 0x00, 0x00, 0x00, 0x00};
@@ -177,7 +132,7 @@ void Robot::getResponse()
 			}
 		}
 
-		if(moveStage.size() > 0)//если есть текущие задания
+		if(moveStage.size() > 0)//ГҐГ±Г«ГЁ ГҐГ±ГІГј ГІГҐГЄГіГ№ГЁГҐ Г§Г Г¤Г Г­ГЁГї
 		{
 
 			if(Buff[0] == (STOPPED + 1) && !moveStage[0].done1)
@@ -280,20 +235,20 @@ void Robot::makeTrack(float turnAngle)
 
 void Robot::sendCommands()
 {
-	if(moveStage.size() > 0)//если есть задания
+	if(moveStage.size() > 0)//ГҐГ±Г«ГЁ ГҐГ±ГІГј Г§Г Г¤Г Г­ГЁГї
 	{
-		if(moveStage[0].done1 & moveStage[0].done0)//если задание завершено (колеса доехали)
+		if(moveStage[0].done1 & moveStage[0].done0)//ГҐГ±Г«ГЁ Г§Г Г¤Г Г­ГЁГҐ Г§Г ГўГҐГ°ГёГҐГ­Г® (ГЄГ®Г«ГҐГ±Г  Г¤Г®ГҐГµГ Г«ГЁ)
 		{
-			moveStage.erase(moveStage.begin());//удаляем из очереди
-			previous_task_done = true;//говорим, что можно давать следующее задание			
+			moveStage.erase(moveStage.begin());//ГіГ¤Г Г«ГїГҐГ¬ ГЁГ§ Г®Г·ГҐГ°ГҐГ¤ГЁ
+			previous_task_done = true;//ГЈГ®ГўГ®Г°ГЁГ¬, Г·ГІГ® Г¬Г®Г¦Г­Г® Г¤Г ГўГ ГІГј Г±Г«ГҐГ¤ГіГѕГ№ГҐГҐ Г§Г Г¤Г Г­ГЁГҐ			
 		}
-		if(previous_task_done)//если предыдущее задание выполнено
+		if(previous_task_done)//ГҐГ±Г«ГЁ ГЇГ°ГҐГ¤Г»Г¤ГіГ№ГҐГҐ Г§Г Г¤Г Г­ГЁГҐ ГўГ»ГЇГ®Г«Г­ГҐГ­Г®
 		{
-			if(moveStage.size() > 0)////если есть еще задания
+			if(moveStage.size() > 0)////ГҐГ±Г«ГЁ ГҐГ±ГІГј ГҐГ№ГҐ Г§Г Г¤Г Г­ГЁГї
 			{
-				path(moveStage[0].forthcoming_distance0);//задаем путь
-				move(moveStage[0].speed0,moveStage[0].speed1);//задаем скорость
-				previous_task_done = false;//выставляем флаг ожидания завершения задания
+				path(moveStage[0].forthcoming_distance0);//Г§Г Г¤Г ГҐГ¬ ГЇГіГІГј
+				move(moveStage[0].speed0,moveStage[0].speed1);//Г§Г Г¤Г ГҐГ¬ Г±ГЄГ®Г°Г®Г±ГІГј
+				previous_task_done = false;//ГўГ»Г±ГІГ ГўГ«ГїГҐГ¬ ГґГ«Г ГЈ Г®Г¦ГЁГ¤Г Г­ГЁГї Г§Г ГўГҐГ°ГёГҐГ­ГЁГї Г§Г Г¤Г Г­ГЁГї
 			}
 		}
 	}
@@ -301,7 +256,7 @@ void Robot::sendCommands()
 
 void Robot::correlation()
 {
-	for(int i = 0; i < lidar.object.size(); i++)//для каждого найденного участка (предполагаемого объекта)
+	for(int i = 0; i < lidar.object.size(); i++)//Г¤Г«Гї ГЄГ Г¦Г¤Г®ГЈГ® Г­Г Г©Г¤ГҐГ­Г­Г®ГЈГ® ГіГ·Г Г±ГІГЄГ  (ГЇГ°ГҐГ¤ГЇГ®Г«Г ГЈГ ГҐГ¬Г®ГЈГ® Г®ГЎГєГҐГЄГІГ )
 	{
 		//lidar.object[i].points.push_back(lidar.position.location);
 		lidar.object[i].correlation = matchShapes(lidar.object[i].points, Stand::pattern, CV_CONTOURS_MATCH_I3, 0.0);
@@ -345,6 +300,58 @@ void Robot::correlation()
 		move( (1 + cos) * len * speedLevel , (1 - cos) * len * speedLevel );
 	
 }*/
+
+void Robot::move(int speed0, int speed1)
+{
+	static uint8_t dir0 = 200;
+	static uint8_t dir1 = 200;
+
+	byte command[5] = {MOVE, 0x00, 0x00, 0x00, 0x00};
+	int tmp = abs(speed0);
+	if(tmp > 255)
+		command[1] = 0xFF;
+	else
+		command[1] = tmp & 0xFF;
+	command[1] = command[1] * speed.koef;
+	 
+	if(speed0 == 0)
+		command[2] = dir0;
+		/*if(speed.leftWheel >= 0)
+			command[2] = 200;
+		else
+			command[2] = 20;*/
+	else
+		if(speed0 >= 0)
+			command[2] = 200;
+		else
+			command[2] = 20;
+	dir0 = command[2];
+
+	tmp = abs(speed1);
+	if(tmp > 255)
+		command[3] = 0xFF;
+	else
+		command[3] = tmp & 0xFF;
+	command[3] = command[3] * speed.koef;
+		
+	if(speed1 == 0)
+		command[4] = dir1;
+		/*if(speed.rightWheel >= 0)
+			command[4] = 200;
+		else
+			command[4] = 20;*/
+	else
+		if(speed1 >= 0)
+			command[4] = 200;
+		else
+			command[4] = 20;
+	dir1 = command[4];
+
+	writeData(command, 5);
+	
+	speed.leftWheel = speed0;
+	speed.rightWheel = speed1;
+}
 
 void Robot::MoveByPolar(int X, int Y)
 {

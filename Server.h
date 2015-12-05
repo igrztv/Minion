@@ -66,7 +66,7 @@ public:
 	int open();
 	int readData(char *data);
 	int readData();
-    void writeData(int client, char* data, int len);
+	void writeData(int client, char* data, int len);
 
 	int checkNewClient();
 

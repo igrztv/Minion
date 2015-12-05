@@ -26,12 +26,12 @@ int create_pipe(char *name)
 int write_pipe(int fd, char * buffer, int len)
 {
 	cout << buffer << endl;
-    return write(fd, buffer, len);
+	return write(fd, buffer, len);
 }
 
 int read_pipe(int fd, char *buf, int len)
 {
-		fd_set read_fds;        // file descriptor read flags
+		fd_set read_fds;		// file descriptor read flags
 		struct timeval tv;
 		tv.tv_sec = 0;
 		tv.tv_usec = 50000;	
@@ -71,12 +71,12 @@ int read_pipe(int fd, char *buf, int len)
 			return 0;
 		}
 		
-        return EXIT_SUCCESS;
+		return EXIT_SUCCESS;
 }
 
 int close_pipe(int fd, char *name)
 {
 	close(fd);
-    unlink(name);
-    return 0;
+	unlink(name);
+	return 0;
 }

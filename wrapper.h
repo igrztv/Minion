@@ -28,24 +28,24 @@ public:
 	void add(string, string);
 	vector< pair<string ,pair< int, uint8_t*> > > command;
 private:
-    int realSize;
-    
-    map<string, string > name_set;
-    struct DataCont{
-        DataCont();
-        ~DataCont();
-        void take(uint8_t* data, int comSize);
-        int find(string search);
-        bool empty();
-        bool erase(int shift);
-        string getConstStr(int start, int end);
-        int realSize;
-        int size;
-        uint8_t* current;
-    } dataCont;
-    bool find(int&, int&, DataCont&, int&);
+	int realSize;
+	
+	map<string, string > name_set;
+	struct DataCont{
+		DataCont();
+		~DataCont();
+		void take(uint8_t* data, int comSize);
+		int find(string search);
+		bool empty();
+		bool erase(int shift);
+		string getConstStr(int start, int end);
+		int realSize;
+		int size;
+		uint8_t* current;
+	} dataCont;
+	bool find(int&, int&, DataCont&, int&);
 
-    //vector<uint8_t>* sendBuf;
+	//vector<uint8_t>* sendBuf;
 };
 
 #endif // WRAPPER_H

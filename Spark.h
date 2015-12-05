@@ -13,6 +13,8 @@ private:
 	#define CLOUDoff 'c';
 	#define WIFIparam 'p';
 	#define StopByte 0x00;
+	#define SlefieDown 's'
+	#define SlefieUp 'S'
 	#define ACB 0xFF
 
 public:
@@ -24,14 +26,17 @@ public:
 	void CloudOn();
 	void CloudOff();	
 	void WiFiParams(const char* SSID, const char* password);
+	void SelfieGetReady();
+	void SelfieRelease();
 	bool getResponse();
 	void getBatteries();
 	int percent(int index);
 
 	int acb;
-	float cell[5];
+	float cell[2][5];
 	float voltage[2];
 	bool plugged[2];
+	bool StickIsDown;
 
 };
 

@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[	 ]*#[	 ]*(include|import)[	 ]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -75,6 +75,10 @@ stdint.h
 /home/linaro/projects/Minion/Video.h
 iostream
 -
+stdio.h
+-
+ctime
+-
 opencv2/highgui/highgui.hpp
 /home/linaro/projects/Minion/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
@@ -107,6 +111,10 @@ Client.h
 /home/linaro/projects/Minion/Client.h
 wrapper.h
 /home/linaro/projects/Minion/wrapper.h
+opencv2/highgui/highgui.hpp
+/home/linaro/projects/Minion/opencv2/highgui/highgui.hpp
+opencv2/imgproc/imgproc.hpp
+/home/linaro/projects/Minion/opencv2/imgproc/imgproc.hpp
 
 /home/linaro/projects/Minion/robotControl.h
 SerialCodes.h

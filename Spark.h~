@@ -2,7 +2,6 @@
 #define SPARK_H
 
 #include "SerialPort.h"
-#include "stdint.h"
 
 class Spark : public Serial
 {
@@ -26,12 +25,10 @@ public:
 	void WiFiParams(const char* SSID, const char* password);
 	bool getResponse();
 	void getBatteries();
-	uint8_t percent(int index);
 
 	int acb;
 	float cell[5];
-	float voltage[2];
-	bool plugged[2];
+	float voltage[2] = {0};
 
 };
 

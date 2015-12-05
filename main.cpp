@@ -11,6 +11,12 @@
 //#include "Server.h"
 #include "wrapper.h"
 
+//////////////////////////////////////////////
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
+//////////////////////////////////////////////
+
 #define maybe(x) if((rand() % x) ? false : true)
 
 #define delay(x) sleep(x)
@@ -18,24 +24,52 @@
 using namespace std;
 
 static void *ReadCommands(void *vptr_args);
+static void *soundCommands(void *vptr_args);
+static void onMouseMove(int, int, int, int, void*);
 static bool issetCommand = false;
+static bool voiceCommand = false;
+static bool find_banana = false;
+int SelfieCamera = 0;
+int FrontCamera = 1;
 static char command[100];
 bool end_program = false;
 int clientProcess(Client& client);
 char *address;
 
+static bool send_file = false;
+static bool send_photo = false;
+
 Robot Minion(1500,1000,0);
 Spark Accums(2);
 
 bool USE_TCP = true;
+bool WEB_ACCESS = true;
 
 wrapper wrap;
+
+int moveX = 0, moveY = 0;
+
+static void onMouseMove(int event, int x, int y, int, void* a)
+{
+	if(event != EVENT_LBUTTONDOWN)
+		return;
+
+	//Robot*robot = (Robot*)Minion;
+	//cout << "X, Y = " << x-50 << " " << y-50 << endl;
+	moveY = ((x - 50) / 25.0);
+	moveX = -((y - 50) / 25.0);
+	cout << "moveX, Y = " << moveX << " " << moveY << endl;
+}
 
 int main(int argc, char* argv[])
 {
 	
 	wrap.add("frame", "<frame>");
 	wrap.add("video", "<video>");
+	wrap.add("selfie", "<selfie>");
+	wrap.add("lower", "<lower>");
+	wrap.add("swapCam", "<swapCam>");
+	wrap.add("photo", "<photo>");
 	wrap.add("/video", "</video>");
 	wrap.add("forward", "<forward>");
 	wrap.add("backward", "<backward>");
@@ -48,15 +82,21 @@ int main(int argc, char* argv[])
 	wrap.add("speed", "<speed>");//speed koef
 	wrap.add("battery1", "<battery1>");
 	wrap.add("battery2", "<battery2>");
+	wrap.add("music", "<music>");
 	
 	//start program, read settings
 	if(argc > 1)
 	{
 		for(int i = 1; i < argc; i++)
 		{
+			if(strcmp(argv[i], "NO_INTERNET") == 0)
+			{
+				cout << "WEB_ACCESS == false" << endl;
+				WEB_ACCESS = false;
+			}
 			if(strcmp(argv[i], "NO_TCP") == 0)
 			{
-				cout << argv[i] << " == false" << endl;
+				cout << "USE_TCP == false" << endl;
 				USE_TCP = false;
 			}
 			if(strcmp(argv[i], "-ip") == 0)
@@ -65,6 +105,7 @@ int main(int argc, char* argv[])
 				{
 					address = argv[i+1];
 					i++;
+					continue;
 				}
 			}
 		}
@@ -72,11 +113,18 @@ int main(int argc, char* argv[])
 	
 	//setup additional thread for manual controling via terminal
 	pthread_t readingThread; 
-    if (pthread_create(&readingThread, NULL, ReadCommands, NULL) != 0)
-    {
+	if (pthread_create(&readingThread, NULL, ReadCommands, NULL) != 0)
+	{
 		cout << "\033[32mThread create returns with an error!\n\033[0m";
-        return EXIT_FAILURE;
-    }
+		return EXIT_FAILURE;
+	}
+
+	pthread_t soundThread; 
+	if (pthread_create(&soundThread, NULL, soundCommands, NULL) != 0)
+	{
+		cout << "\033[32mThread create returns with an error!\n\033[0m";
+		return EXIT_FAILURE;
+	}
 	
 	//set connecting params to reach controling server
 	if(address == NULL)
@@ -95,14 +143,14 @@ int main(int argc, char* argv[])
 	}else
 		cout << "\033[31mERRROR open MINION. Port = " << Minion.port << "\033[0m\n";
 	
-	cout << "Open Lidar\n";
+	/*cout << "Open Lidar\n";
 	Minion.lidar.openPort("/dev/serial/by-id/usb-Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001-if00-port0", 115200);
 	if(!Minion.lidar.isConnected())
 	{
 		cout << "\033[31mERRROR open LIDAR. Port = " << Minion.lidar.port << "\033[0m\n";
 	}else{
 		cout << "\033[32mLidar connected!\033[0m\n";
-	}
+	}*/
 	
 	cout << "Open Spark\n";
 	Accums.openPort("/dev/serial/by-id/usb-Spark_Devices_Spark_Core_with_WiFi_6D8537A55151-if00", 115200);
@@ -113,24 +161,63 @@ int main(int argc, char* argv[])
 		cout << "\033[32mSpark connected!\033[0m\n";
 	}
 
+	
+	if(!USE_TCP)
+	{
+		cv::namedWindow("move", CV_WINDOW_NORMAL);
+		cv::resizeWindow("move", 100, 100);
+		Mat blank(100, 100, CV_8UC3, Scalar(0,0,0));
+		imshow("move", blank);	
+		setMouseCallback("move", onMouseMove);
+	}
+		int counter = 0;
+	if(!USE_TCP)
+		Minion.camera.CreateWindow();
+	//videoCapture cam(0);
+
 	while(!end_program)
 	{
 		
 		if(USE_TCP)
 			clientProcess(client);
+		else{
+		if(send_photo)
+		{
+			voiceCommand = true;
+			uint8_t* jpegBuff;
+			int length = Minion.camera.GetFrame(jpegBuff, true, WEB_ACCESS);
+			if(length < 0)
+			{
+				cout << "\033[32mSELFIE!\033[0m\n";
+			}else
+				cout << "\033[31mcannot parse jpeg\033[0m\n";
+			send_photo = false;
+		}
+		}
 		
-		Minion.lidar.Process();
+		//Minion.lidar.Process();
 		//Minion.lidar.segregate_areas();
 		//Minion.correlation();
 		
 		Minion.sendCommands();
 		Minion.getResponse();
-		
+	 
 		Accums.getResponse();
+
+		if(!USE_TCP)
+		{
+			//cout << "frame: \n";
+			Minion.camera.ShowFrame();			
+		}
 		
 		maybe(100)
 		{
 			Accums.getBatteries();
+			if(Accums.plugged[0])
+			{
+				printf("Bat 1: %f%%,%f%%,%f%%,%f%%,%f%%;\n", Accums.cell[0][0],Accums.cell[0][1],Accums.cell[0][2],Accums.cell[0][3],Accums.cell[0][4]);
+				printf("Bat 1: %u%%;\n", Accums.percent(0));
+			}
 		}
 			
 		if(issetCommand)
@@ -139,18 +226,79 @@ int main(int argc, char* argv[])
 			issetCommand = false;
 		}	
 		//Minion.Angle(Minion.Position().angle + d2r(10));
-		usleep(25000);
+		if(!USE_TCP)
+		{
+			int key = cv::waitKey(25);
+			switch(key)
+			{
+				case 'w': moveX = 1; break;
+				case 'a': moveY = -1; break;
+				case 's': moveX = -1; break;
+				case 'd': moveY = 1; break;
+				case '2': moveX = moveY = 0; break;
+				case 27: end_program = true; break;
+				case 'b': voiceCommand = true; break;
+				case 'f': send_photo = true; break;
+				case 'q': Accums.SelfieGetReady(); break;
+				case 'e': Accums.SelfieRelease(); break;
+				default: break;
+			}
+			//cout << "moveX, Y = " << moveX << " " << moveY << endl;
+			Minion.MoveByPolar(moveX, moveY);
+			counter++;
+			if(counter > 90)
+				counter = moveX = moveY = 0;
+		}else{
+			usleep(25000);
+		}
+
 	}
 	
 	if (pthread_join(readingThread, NULL) != 0)
-    {
+		{
 		cout << "cannot join readingThread!\n";
-        return EXIT_FAILURE;
-    }else{
+		return EXIT_FAILURE;
+	}else{
+		cout << "thread close success!\n";
+	}
+	if (pthread_join(soundThread, NULL) != 0)
+		{
+		cout << "cannot join soundThread!\n";
+		return EXIT_FAILURE;
+	}else{
 		cout << "thread close success!\n";
 	}
 
 	return 0;
+}
+
+static void *soundCommands(void *vptr_args)
+{
+	char buf[100];
+	printf("START sound cycles\n");
+	while(!end_program)
+	{
+		printf("%c", 0);
+		if(voiceCommand)
+		{
+			//cout << "\033[33m" << command << "\033[0m" << endl;
+			sprintf(buf, "mplayer -ao alsa:device=hw=2.0 sounds/camera2.mp3");
+			//"mplayer -ao alsa:device=hw=2.0 sounds/Game.mp3"
+			printf("sound START\n");
+			system(buf);
+			printf("sound DONE\n");
+			maybe(20)
+			{
+				sprintf(buf, "mplayer -ao alsa:device=hw=2.0 sounds/banana.mp3");
+				printf("sound START\n");
+				system(buf);
+				printf("sound DONE\n");
+			}
+			voiceCommand = false;		
+		}
+	}
+	printf("EXIT sound cycles!\n");
+	return NULL;
 }
 
 static void *ReadCommands(void *vptr_args)
@@ -196,20 +344,41 @@ static void *ReadCommands(void *vptr_args)
 				Accums.CloudOn();
 				continue; 
 			}
-			if(strcmp(str, "left") == 0)
+			if(strcmp(str, "stop") == 0)
 			{
-				//Minion.speed.left = -120;
-				//Minion.speed.right = 120;
-				//Minion.move();
+				Minion.move(0, 0);
 				continue; 
 			}
-			if(strcmp(str, "/left") == 0)
+			if(strcmp(str, "banana") == 0)
 			{
-				//Minion.speed.left = -1;
-				//Minion.speed.right = 1;
-				//Minion.move();
-				continue; 
+				find_banana = !find_banana; 
+				continue;
 			}
+			if(strcmp(str, "down") == 0)
+			{
+				Accums.SelfieGetReady();
+				//Minion.selfie.OpenCamera(SelfieCamera);
+			}
+			if(strcmp(str, "up") == 0)
+			{
+				Accums.SelfieRelease();
+				//Minion.selfie.OpenCamera(SelfieCamera);
+			}
+			if(strcmp(str, "photo") == 0)
+			{
+				send_photo = true;
+			}
+			if(strcmp(str, "swapCam") == 0)
+			{
+				int tmp = SelfieCamera;
+				SelfieCamera = FrontCamera;
+				FrontCamera = tmp;
+				Minion.camera.CloseCamera();
+				Minion.camera.OpenCamera(FrontCamera);
+			}
+			if(strcmp(str, "music") == 0)
+				voiceCommand = true;
+
 			memcpy(command, str, 100);
 			issetCommand = true;
 		}
@@ -219,13 +388,12 @@ static void *ReadCommands(void *vptr_args)
 
 int clientProcess(Client& client)
 {
-	static bool send_file = false;
-	static int moveX = 0;
-	static int moveY = 0;
+	//moveX = 0;
+	//moveY = 0;
 	static int reconnectionTimes = 0;
 	if(client.connected)
 	{
-		
+		//printf("connected\n");
 		char data[BYTES2READ];
 		int read = client.readData(data);			
 		if(read > 0)
@@ -248,6 +416,22 @@ int clientProcess(Client& client)
 				if(wrap.command[i].first == "/backward") moveX = 0;
 				if(wrap.command[i].first == "/right") moveY = 0;
 				if(wrap.command[i].first == "/left") moveY = 0;
+				if(wrap.command[i].first == "photo") send_photo = true;
+				if(wrap.command[i].first == "lower")
+				{
+					Accums.SelfieGetReady();
+					//Minion.selfie.OpenCamera(SelfieCamera);
+				}
+				if(wrap.command[i].first == "swapCam")
+				{
+					int tmp = SelfieCamera;
+					SelfieCamera = FrontCamera;
+					FrontCamera = tmp;
+					Minion.camera.CloseCamera();
+					Minion.camera.OpenCamera(FrontCamera);
+				}
+				if(wrap.command[i].first == "music")
+					voiceCommand = true;
 				/*if(wrap.command[i].first == "speed")
 				{
 					int koef = 0;
@@ -257,6 +441,8 @@ int clientProcess(Client& client)
 						cout << "\033[31mcannot parse SPEED koef\033[0m\n";
 				}*/
 			}
+			if(moveX != 0 || moveY != 0)
+				Accums.SelfieRelease();
 			Minion.MoveByPolar(moveX, moveY);
 		}
 		if(read < 0)
@@ -292,12 +478,24 @@ int clientProcess(Client& client)
 			uint8_t* jpegBuff;
 			int length = Minion.camera.GetFrame(jpegBuff);
 			if(length > 0)
-			{
+			{				
 				wrap.pack("frame", jpegBuff, length);
 				client.writeData((char*)wrap.sendBuf, wrap.sendBufSize);
 			}else
 				cout << "\033[31mcannot parse jpeg\033[0m\n";
-		}	
+		}
+		if(send_photo)
+		{
+			voiceCommand = true;
+			uint8_t* jpegBuff;
+			int length = Minion.camera.GetFrame(jpegBuff, true, WEB_ACCESS);
+			if(length < 0)
+			{
+				cout << "\033[32mSELFIE!\033[0m\n";
+			}else
+				cout << "\033[31mcannot parse jpeg\033[0m\n";
+			send_photo = false;
+		}
 		//send info about battery voltage
 	}else{
 		if(reconnectionTimes > 5)

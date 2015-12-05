@@ -220,11 +220,11 @@ HANDLE Serial::openPort(const char *portName, unsigned int baudrate)
 
 	int parity = 0;
 
-    struct termios tty;
-    memset (&tty, 0, sizeof tty);
-    if (tcgetattr (port, &tty) != 0){
+	struct termios tty;
+	memset (&tty, 0, sizeof tty);
+	if (tcgetattr (port, &tty) != 0){
 		perror("error %d from tcgetattr");
-    }
+	}
 
 	if(baudrate == (unsigned int) 115200)
 	{
@@ -232,44 +232,44 @@ HANDLE Serial::openPort(const char *portName, unsigned int baudrate)
 		cfsetispeed (&tty, B115200);
 	}
 
-    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
-    // disable IGNBRK for mismatched speed tests; otherwise receive break
-    // as \000 chars
-    tty.c_iflag &= ~IGNBRK;         // ignore break signal
-    tty.c_lflag = 0;                // no signaling chars, no echo,
-                                    // no canonical processing
-    tty.c_oflag = 0;                // no remapping, no delays
-    tty.c_cc[VMIN]  = 0;            // read doesn't block
-    tty.c_cc[VTIME] = 0;            // 0.5 seconds read timeout
+	tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;	 // 8-bit chars
+	// disable IGNBRK for mismatched speed tests; otherwise receive break
+	// as \000 chars
+	tty.c_iflag &= ~IGNBRK;		 // ignore break signal
+	tty.c_lflag = 0;				// no signaling chars, no echo,
+									// no canonical processing
+	tty.c_oflag = 0;				// no remapping, no delays
+	tty.c_cc[VMIN]  = 0;			// read doesn't block
+	tty.c_cc[VTIME] = 0;			// 0.5 seconds read timeout
 
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+	tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
-    tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                    // enable reading
-    tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-    tty.c_cflag |= parity;
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_cflag &= ~CRTSCTS;
+	tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
+									// enable reading
+	tty.c_cflag &= ~(PARENB | PARODD);	  // shut off parity
+	tty.c_cflag |= parity;
+	tty.c_cflag &= ~CSTOPB;
+	tty.c_cflag &= ~CRTSCTS;
 
-    if (tcsetattr (port, TCSANOW, &tty) != 0){
+	if (tcsetattr (port, TCSANOW, &tty) != 0){
 		perror("error %d from tcsetattr");
-    }
+	}
 
 	int should_block = 0;	// set no blocking
-    memset (&tty, 0, sizeof tty);
-    if (tcgetattr (port, &tty) != 0){
+	memset (&tty, 0, sizeof tty);
+	if (tcgetattr (port, &tty) != 0){
 		perror("error %d from tggetattr");
-    }
+	}
 
-    tty.c_cc[VMIN]  = should_block ? 1 : 0;
-    tty.c_cc[VTIME] = 0;            // 0.5 seconds read timeout
+	tty.c_cc[VMIN]  = should_block ? 1 : 0;
+	tty.c_cc[VTIME] = 0;			// 0.5 seconds read timeout
 
-    if (tcsetattr (port, TCSANOW, &tty) != 0)
-            perror("error %d setting term attributes");
-            
-    if(port != INVALID_HANDLE_VALUE)
+	if (tcsetattr (port, TCSANOW, &tty) != 0)
+			perror("error %d setting term attributes");
+			
+	if(port != INVALID_HANDLE_VALUE)
 		connected = true;
-    return port;
+	return port;
 }
 
 #endif
