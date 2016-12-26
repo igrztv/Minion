@@ -106,9 +106,9 @@ void Lidar::segregate_areas()
 			{
 				discard_capture = false;
 
-				if(object_captured == false)//ГҐГ±Г«ГЁ Г¬Г» Г­ГҐ Г±Г®ГЎГЁГ°Г Г«ГЁ Г®ГЎГєГҐГЄГІ ГЁГ§ ГІГ®Г·ГҐГЄ
+				if(object_captured == false)//если мы не собирали объект из точек
 				{
-					tmp.begin = a;//Г­Г Г·ГЁГ­Г ГҐГ¬ Г±Г®ГЎГЁГ°Г ГІГј Г­Г®ГўГ»Г© Г®ГЎГєГҐГЄГІ
+					tmp.begin = a;//начинаем собирать новый объект
 					tmp.points.push_back(Point(Samples[a].x, Samples[a].y));
 					//tmp.points.push_back(Samples[a].Distance);
 				}
@@ -118,25 +118,25 @@ void Lidar::segregate_areas()
 				//tmp.points.push_back(Samples[i].Distance);
 			}
 		}
-		if(discard_capture)//ГҐГ±Г«ГЁ ГЇГ°ГЁГ±Г®ГҐГ¤ГЁГ­ГҐГ­ГЁГҐ Г­Г®ГўГ®Г© ГІГ®Г·ГЄГЁ ГЄ Г®ГЎГєГҐГЄГІГі ГЇГ°ГҐГ°ГўГ Г«Г®Г±Гј
+		if(discard_capture)//если присоединение новой точки к объекту прервалось
 		{
-			if(object_captured == true)//ГҐГ±Г«ГЁ ГЇГ°ГЁ ГЅГІГ® Г¬Г» Г±Г®ГЎГЁГ°Г Г«ГЁ Г®ГЎГєГҐГЄГІ ГЁГ§ ГІГ®Г·ГҐГЄ, Г§Г ГЄГ Г­Г·ГЁГўГ ГҐГ¬
+			if(object_captured == true)//если при это мы собирали объект из точек, заканчиваем
 			{
 				tmp.length = GameObject::length(Samples[tmp.begin].x, Samples[tmp.begin].y, Samples[tmp.end].x, Samples[tmp.end].y);
 				tmp.pointsNum = tmp.end - tmp.begin + 1;
 				object.push_back(tmp);
-				tmp.points.erase(tmp.points.begin(), tmp.points.end());//Г®Г·ГЁГ№Г ГҐГ¬ Г¬ГҐГ±ГІГ® Г¤Г«Гї Г±Г«ГҐГ¤ГіГѕГ№ГҐГЈГ® Г®ГЎГєГҐГЄГІГ 
+				tmp.points.erase(tmp.points.begin(), tmp.points.end());//очищаем место для следующего объекта
 			}
 			object_captured = false;
 		}
 	}
-	if(!discard_capture)//Г§Г ГЄГ®Г­Г·ГЁГ«ГЁ ГЇГ°Г®ГµГ®Г¤ ГЇГ® ГўГ±ГҐГ¬ ГІГ®Г·ГЄГ Г¬, Г  ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© Г®ГЎГєГҐГЄГІ Г­ГҐ Г§Г ГўГҐГ°ГёГҐГ­
+	if(!discard_capture)//закончили проход по всем точкам, а последний объект не завершен
 	{
-		if(object_captured)//ГҐГ±Г«ГЁ Г¬Г» ГҐГЈГ® Г±Г®ГЎГЁГ°Г Г«ГЁ
+		if(object_captured)//если мы его собирали
 		{
-			if(object[0].begin == 359)//ГҐГ±Г«ГЁ ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© Г®ГЎГєГҐГЄГІ ГЁГ¬ГҐГҐГІ Г± ГЇГҐГ°ГўГ»Г¬ Г®ГЎГ№ГіГѕ ГІГ®Г·ГЄГі
+			if(object[0].begin == 359)//если последний объект имеет с первым общую точку
 			{
-				//ГЅГІГ®ГІ Г®ГЎГєГҐГЄГІ Г±ГўГїГ§Г»ГўГ ГҐГ¬ Г± ГЇГҐГ°ГўГ»Г¬
+				//этот объект связываем с первым
 				tmp.end = object[0].end;
 				for (vector<Point>::iterator it = object[0].points.begin(); it != object[0].points.end(); ++it)
 				//for (vector<int>::iterator it = object[0].points.begin(); it != object[0].points.end(); ++it)

@@ -65,8 +65,8 @@ int Server::open()
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	 
 	//printf("Using %s, listening at %d\n", inet_ntoa(serveraddr.sin_addr), SERVPORT);
-	bool isUsed = true;
-	setsockopt(sd,SOL_SOCKET,SO_REUSEADDR,(char*)(&isUsed), sizeof(isUsed));
+    bool isUsed = true;
+    setsockopt(sd,SOL_SOCKET,SO_REUSEADDR,(char*)(&isUsed), sizeof(isUsed));
 	if((rc = bind(sd, (struct sockaddr *)&serveraddr, sizeof(serveraddr))) < 0)
 	{
 		perror("Server-bind() error");
@@ -202,7 +202,7 @@ void Server::writeData(int client, char* data, int len)
 	if(!FD_ISSET(clients[client], &fd))
 		return;
 	//cout << "writeData clients[" << client << "]\n";
-	int dataLen = (len > 0) ? len : strlen(data);
+    int dataLen = (len > 0) ? len : strlen(data);
 	int rc = write(clients[client], data, dataLen);
 	if(rc != dataLen)
 	{

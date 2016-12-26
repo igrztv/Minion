@@ -59,6 +59,7 @@ CMakeFiles/Minion.dir/main.cpp.o: Client.h
 CMakeFiles/Minion.dir/main.cpp.o: Lidar.h
 CMakeFiles/Minion.dir/main.cpp.o: SerialCodes.h
 CMakeFiles/Minion.dir/main.cpp.o: SerialPort.h
+CMakeFiles/Minion.dir/main.cpp.o: Server.h
 CMakeFiles/Minion.dir/main.cpp.o: Spark.h
 CMakeFiles/Minion.dir/main.cpp.o: Video.h
 CMakeFiles/Minion.dir/main.cpp.o: gameObject.h

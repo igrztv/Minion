@@ -28,6 +28,7 @@ public:
 	void ShowFrame();
 	void FindBanana();
 	void SaveFrame();
+	void NextFrame();
 
 private:
 	vector<int> param;

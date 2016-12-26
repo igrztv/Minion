@@ -34,7 +34,7 @@ int Video::GetFrame(uint8_t*& jpegBuff, bool best_quality, bool sendToServer)
 	{
 		param[1] = 100;
 		time_t t = time(0);  // t is an integer type
-			cout << t << " seconds since 01-Jan-1970\n";
+    		cout << t << " seconds since 01-Jan-1970\n";
 		char buf[100];
 		sprintf(buf, "images/%lld.jpeg", (long long) t);
 		imwrite(buf, image, param);
@@ -45,7 +45,7 @@ int Video::GetFrame(uint8_t*& jpegBuff, bool best_quality, bool sendToServer)
 		}
 		return 0;
 	}else{
-		param[1] = 27;
+		param[1] = 5;
 		imencode(".jpg", image, buff, param);
 		jpegBuff = &buff[0];
 		return buff.size();
@@ -68,6 +68,18 @@ void Video::ShowFrame()
 
 	cap >> image; // get a new frame from camera
 	imshow("frame", image);
+}
+
+void Video::NextFrame()
+{
+	if(!OpenCamera(Camera))
+	{
+		cout << "no openned cameras\n";
+		return;
+	}
+
+	cap >> image; // get a new frame from camera
+	//imshow("frame", image);
 }
 
 void Video::FindBanana()
@@ -110,6 +122,6 @@ Video::~Video()
 	client.writeData((char *)sendFrame, 7+buff.size()+8);
 	// << endl;
 	delete [] sendFrame;
-	
+    
 	return 1;
 }*/

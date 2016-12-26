@@ -1,10 +1,14 @@
-#IncludeRegexLine: ^[	 ]*#[	 ]*(include|import)[	 ]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
 #IncludeRegexComplain: ^$
 
 #IncludeRegexTransform: 
+
+/home/linaro/projects/Minion/Client.cpp
+Client.h
+/home/linaro/projects/Minion/Client.h
 
 /home/linaro/projects/Minion/Client.h
 iostream
@@ -32,6 +36,10 @@ fcntl.h
 netdb.h
 -
 
+/home/linaro/projects/Minion/Lidar.cpp
+Lidar.h
+/home/linaro/projects/Minion/Lidar.h
+
 /home/linaro/projects/Minion/Lidar.h
 Windows.h
 -
@@ -45,6 +53,10 @@ gameObject.h
 /home/linaro/projects/Minion/gameObject.h
 
 /home/linaro/projects/Minion/SerialCodes.h
+
+/home/linaro/projects/Minion/SerialPort.cpp
+SerialPort.h
+/home/linaro/projects/Minion/SerialPort.h
 
 /home/linaro/projects/Minion/SerialPort.h
 stdio.h
@@ -66,11 +78,49 @@ termios.h
 iostream
 -
 
+/home/linaro/projects/Minion/Server.cpp
+Server.h
+/home/linaro/projects/Minion/Server.h
+
+/home/linaro/projects/Minion/Server.h
+iostream
+-
+vector
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+sys/time.h
+-
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+errno.h
+-
+unistd.h
+-
+fcntl.h
+-
+
+/home/linaro/projects/Minion/Spark.cpp
+Spark.h
+/home/linaro/projects/Minion/Spark.h
+
 /home/linaro/projects/Minion/Spark.h
 SerialPort.h
 /home/linaro/projects/Minion/SerialPort.h
 stdint.h
 /home/linaro/projects/Minion/stdint.h
+
+/home/linaro/projects/Minion/Video.cpp
+Video.h
+/home/linaro/projects/Minion/Video.h
 
 /home/linaro/projects/Minion/Video.h
 iostream
@@ -83,6 +133,10 @@ opencv2/highgui/highgui.hpp
 /home/linaro/projects/Minion/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
 /home/linaro/projects/Minion/opencv2/imgproc/imgproc.hpp
+
+/home/linaro/projects/Minion/gameObject.cpp
+gameObject.h
+/home/linaro/projects/Minion/gameObject.h
 
 /home/linaro/projects/Minion/gameObject.h
 stdio.h
@@ -109,12 +163,18 @@ Spark.h
 /home/linaro/projects/Minion/Spark.h
 Client.h
 /home/linaro/projects/Minion/Client.h
+Server.h
+/home/linaro/projects/Minion/Server.h
 wrapper.h
 /home/linaro/projects/Minion/wrapper.h
 opencv2/highgui/highgui.hpp
 /home/linaro/projects/Minion/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
 /home/linaro/projects/Minion/opencv2/imgproc/imgproc.hpp
+
+/home/linaro/projects/Minion/robotControl.cpp
+robotControl.h
+/home/linaro/projects/Minion/robotControl.h
 
 /home/linaro/projects/Minion/robotControl.h
 SerialCodes.h
@@ -133,6 +193,10 @@ Lidar.h
 /home/linaro/projects/Minion/Lidar.h
 Video.h
 /home/linaro/projects/Minion/Video.h
+
+/home/linaro/projects/Minion/wrapper.cpp
+wrapper.h
+/home/linaro/projects/Minion/wrapper.h
 
 /home/linaro/projects/Minion/wrapper.h
 iostream

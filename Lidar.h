@@ -6,7 +6,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #else
-typedef unsigned char	   BYTE;
+typedef unsigned char       BYTE;
 #endif
 
 #include <vector>
@@ -24,14 +24,14 @@ using namespace std;
 class Lidar : public Serial
 {
 private:	
-	int setAngle; //ГіГЈГ®Г« ГіГ±ГІГ Г­Г®ГўГЄГЁ Г«ГЁГ¤Г Г°Г  Г­Г  ГЇГ«Г ГІГґГ®Г°Г¬ГҐ. ГЌГіГ¦ГҐГ­ Г¤Г«Гї Г±Г®ГўГ¬ГҐГ№ГҐГ­ГЁГї Г­ГіГ«ГҐГ© Г«ГЁГ¤Г Г°Г  ГЁ Г°Г®ГЎГ®ГІГ 
+	int setAngle; //угол установки лидара на платформе. Нужен для совмещения нулей лидара и робота
 
 	struct Object
 	{
-		int length; //ГёГЁГ°ГЁГ­Г  Г®ГЎГєГҐГЄГІГ  Гў Г¬ГЁГ«Г«ГЁГ¬ГҐГІГ°Г Гµ
-		int begin; // ГЇГҐГ°ГўГ Гї ГІГ®Г·ГЄГ  Г®ГЎГєГҐГЄГІГ 
-		int end; // ГЇГ®Г±Г«ГҐГ¤Г­ГїГї ГІГ®Г·ГЄГ  Г®ГЎГєГҐГЄГІГ 
-		int pointsNum; //ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГІГ®Г·ГҐГЄ, ГЁГ§ ГЄГ®ГІГ®Г°Г»Гµ Г±Г®Г±ГІГ®ГЁГІ Г®ГЎГєГҐГЄГІ
+		int length; //ширина объекта в миллиметрах
+		int begin; // первая точка объекта
+		int end; // последняя точка объекта
+		int pointsNum; //количество точек, из которых состоит объект
 		float correlation;
 		bool isStand;
 		vector<Point> points;

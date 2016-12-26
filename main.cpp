@@ -7,8 +7,10 @@
 #include "robotControl.h"
 #include "gameObject.h"
 #include "Spark.h"
+
 #include "Client.h"
-//#include "Server.h"
+#include "Server.h"
+
 #include "wrapper.h"
 
 //////////////////////////////////////////////
@@ -33,7 +35,10 @@ int SelfieCamera = 0;
 int FrontCamera = 1;
 static char command[100];
 bool end_program = false;
+
 int clientProcess(Client& client);
+int serverProcess(Server& server);
+
 char *address;
 
 static bool send_file = false;
@@ -61,9 +66,8 @@ static void onMouseMove(int event, int x, int y, int, void* a)
 	cout << "moveX, Y = " << moveX << " " << moveY << endl;
 }
 
-int main(int argc, char* argv[])
+void wrapperInit()
 {
-	
 	wrap.add("frame", "<frame>");
 	wrap.add("video", "<video>");
 	wrap.add("selfie", "<selfie>");
@@ -83,6 +87,13 @@ int main(int argc, char* argv[])
 	wrap.add("battery1", "<battery1>");
 	wrap.add("battery2", "<battery2>");
 	wrap.add("music", "<music>");
+}
+
+int main(int argc, char* argv[])
+{
+
+	wrapperInit();
+	cout << "wrapperInit()" << endl;
 	
 	//start program, read settings
 	if(argc > 1)
@@ -130,7 +141,12 @@ int main(int argc, char* argv[])
 	if(address == NULL)
 		address = (char *)"127.0.0.1";
 	cout << "connection address is " << address << endl;
-	Client client(address, 53000);
+	
+	//Client client(address, 53000);
+	Server server(53000);
+	if(server.open() == 1){
+		cout << "TCP server opened!"<< endl;
+	}
 
 	cout << "Open Minion\n";
 	Minion.openPort("/dev/serial/by-id/usb-STMicroelectronics_STM32_STLink_0672FF495056805087183940-if02", 115200);
@@ -139,6 +155,7 @@ int main(int argc, char* argv[])
 		delay(3);
 		Minion.skipSettings();
 		Minion.skipSettings();
+		Minion.move_manual(Robot::MANUAL);
 		cout << "\033[32mMinion connected!\033[0m\n";
 	}else
 		cout << "\033[31mERRROR open MINION. Port = " << Minion.port << "\033[0m\n";
@@ -179,7 +196,8 @@ int main(int argc, char* argv[])
 	{
 		
 		if(USE_TCP)
-			clientProcess(client);
+			//clientProcess(client);
+			serverProcess(server);
 		else{
 		if(send_photo)
 		{
@@ -208,6 +226,8 @@ int main(int argc, char* argv[])
 		{
 			//cout << "frame: \n";
 			Minion.camera.ShowFrame();			
+		}else{
+			Minion.camera.NextFrame();
 		}
 		
 		maybe(100)
@@ -287,7 +307,7 @@ static void *soundCommands(void *vptr_args)
 			printf("sound START\n");
 			system(buf);
 			printf("sound DONE\n");
-			maybe(20)
+			maybe(5)
 			{
 				sprintf(buf, "mplayer -ao alsa:device=hw=2.0 sounds/banana.mp3");
 				printf("sound START\n");
@@ -432,14 +452,6 @@ int clientProcess(Client& client)
 				}
 				if(wrap.command[i].first == "music")
 					voiceCommand = true;
-				/*if(wrap.command[i].first == "speed")
-				{
-					int koef = 0;
-					if(sscanf((char*)wrap.command[i].second.second, "%d%%", &koef) == 1) //valid cmd: "<speed 3>98%"
-						Minion.speed.koef = koef / 100.0;
-					else
-						cout << "\033[31mcannot parse SPEED koef\033[0m\n";
-				}*/
 			}
 			if(moveX != 0 || moveY != 0)
 				Accums.SelfieRelease();
@@ -525,6 +537,145 @@ int clientProcess(Client& client)
 				wrap.pack("battery2", percentage, 1);
 				client.writeData((char*)wrap.sendBuf, wrap.sendBufSize);
 			}
+		}
+	}
+	
+	return 0;
+}
+
+int serverProcess(Server& server)
+{
+	static int reconnectionTimes = 0;
+	//if(client.connected)
+	//{
+		//printf("connected\n");
+		char data[BYTES2READ + 1];
+		//int read = client.readData(data);
+		int read = server.readData(data);
+        /*if (server.newClient){
+            graphic->printText("I have new Client");
+            graphic->change("stuart",1);
+        }*/			
+		if(read > 0)
+		{
+			cout << "\033[34m" << data << "\033[0m" << endl;
+			wrap.unpack((uint8_t*)data, read);
+			for(int i = 0; i < wrap.command.size(); ++i)
+			{
+				if(wrap.command[i].first == "video") send_file = true;
+				if(wrap.command[i].first == "/video") send_file = false;
+				if(wrap.command[i].first == "frame") cout << "received frame\n";
+				if(wrap.command[i].first == "forward") moveX = 1;
+				if(wrap.command[i].first == "backward") moveX = -1;
+				if(wrap.command[i].first == "right") moveY = 1;
+				if(wrap.command[i].first == "left") moveY = -1;
+				if(wrap.command[i].first == "/forward") moveX = 0;
+				if(wrap.command[i].first == "/backward") moveX = 0;
+				if(wrap.command[i].first == "/right") moveY = 0;
+				if(wrap.command[i].first == "/left") moveY = 0;
+				if(wrap.command[i].first == "photo") send_photo = true;
+				if(wrap.command[i].first == "lower") Accums.SelfieGetReady();
+				if(wrap.command[i].first == "swapCam")
+				{
+					int tmp = SelfieCamera;
+					SelfieCamera = FrontCamera;
+					FrontCamera = tmp;
+					Minion.camera.CloseCamera();
+					Minion.camera.OpenCamera(FrontCamera);
+				}
+				if(wrap.command[i].first == "music")
+					voiceCommand = true;
+			}
+			if(moveX != 0 || moveY != 0)
+				Accums.SelfieRelease();
+			Minion.MoveByPolar(moveX, moveY);
+		}
+		if(read < 0)
+		{
+			cout << "\033[31mlost connection\n\033[0m";
+			Minion.move_manual(Robot::AUTO);
+		}
+		
+	// }else{
+	// 	maybe(100)
+	// 	{
+	// 		cout << "Trying reconnection...";
+	// 		(client.open() < 0) ? cout << "\033[31mfail\033[0m\n" : cout << "\033[32mOK!\033[0m\n";
+	// 		if(client.connected)
+	// 		{				
+	// 			Minion.move_manual(Robot::MANUAL);
+	// 			reconnectionTimes = 0;
+	// 		}else{
+	// 			cout << "reconnectionTimes++;\n";
+	// 			reconnectionTimes++;
+	// 		}
+	// 	}
+	// }
+		
+	//if(client.connected)
+	//{
+		
+		//send video frame
+		if(send_file)
+		{
+			uint8_t* jpegBuff;
+			int length = Minion.camera.GetFrame(jpegBuff);
+			if(length > 0)
+			{				
+				wrap.pack("frame", jpegBuff, length);
+				server.writeData(server.numsocks - 1, (char*)wrap.sendBuf, wrap.sendBufSize);
+				//client.writeData((char*)wrap.sendBuf, wrap.sendBufSize);
+			}else
+				cout << "\033[31mcannot parse jpeg\033[0m\n";
+		}
+		if(send_photo)
+		{
+			voiceCommand = true;
+			uint8_t* jpegBuff;
+			int length = Minion.camera.GetFrame(jpegBuff, false, WEB_ACCESS);
+			if(length > 0)
+			{
+				cout << "\033[32mSELFIE!\033[0m\n";
+				//wrap.pack("selfie", jpegBuff, length);
+				char len[3];
+				sprintf(len, "%c%c", (length >> 8) & 0x00FF, length & 0x00FF);
+				printf("\033[31mlength of picture: %d\033[0m\n", length);
+				server.writeData(server.numsocks - 1, len, 2);
+				server.writeData(server.numsocks - 1, (char*)jpegBuff, length);
+			}else
+				cout << "\033[31mcannot parse jpeg\033[0m\n";
+			send_photo = false;
+		}
+		//send info about battery voltage
+	/*}else{
+		if(reconnectionTimes > 5)
+			send_file = false;
+		Minion.MoveByPolar(0, 0);
+	}*/
+	
+	//accums
+	maybe(100)
+	{
+		uint8_t percentage[1];
+		if(Accums.plugged[0])
+		{
+			percentage[0] = Accums.percent(0);
+			printf("Bat 1: %u%%;\n", percentage[0]);
+			// if(client.connected)
+			// {
+			// 	wrap.pack("battery1", percentage, 1);		
+			// 	client.writeData((char*)wrap.sendBuf, wrap.sendBufSize);
+			// }
+		}
+		if(Accums.plugged[1])
+		{
+			percentage[0] = Accums.percent(1);
+			printf("Bat 2: %u%%;\n",percentage[0]);
+			// if(client.connected)
+			// {
+			// 	wrap.pack("battery2", percentage, 1);
+			// 	client.writeData((char*)wrap.sendBuf, wrap.sendBufSize);
+			// }
 		}
 	}
 	

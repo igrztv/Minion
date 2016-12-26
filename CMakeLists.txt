@@ -13,12 +13,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #include(${QT_USE_FILE})
 #add_definitions(${QT_DEFINITIONS})
 #include_directories(${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
-#endif(QT_FOUND)	
+#endif(QT_FOUND)    
 
 find_package( OpenCV REQUIRED )
 if( OpenCV_FOUND )
 list( APPEND ThirdParty_LIBS ${OpenCV_LIBS} )
-	include_directories( ${OpenCV_INCLUDE_DIRS} )
+    include_directories( ${OpenCV_INCLUDE_DIRS} )
 endif( OpenCV_FOUND )
 
 # uncomment this for OpenMP support

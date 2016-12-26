@@ -60,6 +60,7 @@ CMakeFiles/Minion.dir/main.cpp.o
  /home/linaro/projects/Minion/Lidar.h
  /home/linaro/projects/Minion/SerialCodes.h
  /home/linaro/projects/Minion/SerialPort.h
+ /home/linaro/projects/Minion/Server.h
  /home/linaro/projects/Minion/Spark.h
  /home/linaro/projects/Minion/Video.h
  /home/linaro/projects/Minion/gameObject.h

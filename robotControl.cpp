@@ -132,7 +132,7 @@ void Robot::getResponse()
 			}
 		}
 
-		if(moveStage.size() > 0)//ГҐГ±Г«ГЁ ГҐГ±ГІГј ГІГҐГЄГіГ№ГЁГҐ Г§Г Г¤Г Г­ГЁГї
+		if(moveStage.size() > 0)//если есть текущие задания
 		{
 
 			if(Buff[0] == (STOPPED + 1) && !moveStage[0].done1)
@@ -235,20 +235,20 @@ void Robot::makeTrack(float turnAngle)
 
 void Robot::sendCommands()
 {
-	if(moveStage.size() > 0)//ГҐГ±Г«ГЁ ГҐГ±ГІГј Г§Г Г¤Г Г­ГЁГї
+	if(moveStage.size() > 0)//если есть задания
 	{
-		if(moveStage[0].done1 & moveStage[0].done0)//ГҐГ±Г«ГЁ Г§Г Г¤Г Г­ГЁГҐ Г§Г ГўГҐГ°ГёГҐГ­Г® (ГЄГ®Г«ГҐГ±Г  Г¤Г®ГҐГµГ Г«ГЁ)
+		if(moveStage[0].done1 & moveStage[0].done0)//если задание завершено (колеса доехали)
 		{
-			moveStage.erase(moveStage.begin());//ГіГ¤Г Г«ГїГҐГ¬ ГЁГ§ Г®Г·ГҐГ°ГҐГ¤ГЁ
-			previous_task_done = true;//ГЈГ®ГўГ®Г°ГЁГ¬, Г·ГІГ® Г¬Г®Г¦Г­Г® Г¤Г ГўГ ГІГј Г±Г«ГҐГ¤ГіГѕГ№ГҐГҐ Г§Г Г¤Г Г­ГЁГҐ			
+			moveStage.erase(moveStage.begin());//удаляем из очереди
+			previous_task_done = true;//говорим, что можно давать следующее задание			
 		}
-		if(previous_task_done)//ГҐГ±Г«ГЁ ГЇГ°ГҐГ¤Г»Г¤ГіГ№ГҐГҐ Г§Г Г¤Г Г­ГЁГҐ ГўГ»ГЇГ®Г«Г­ГҐГ­Г®
+		if(previous_task_done)//если предыдущее задание выполнено
 		{
-			if(moveStage.size() > 0)////ГҐГ±Г«ГЁ ГҐГ±ГІГј ГҐГ№ГҐ Г§Г Г¤Г Г­ГЁГї
+			if(moveStage.size() > 0)////если есть еще задания
 			{
-				path(moveStage[0].forthcoming_distance0);//Г§Г Г¤Г ГҐГ¬ ГЇГіГІГј
-				move(moveStage[0].speed0,moveStage[0].speed1);//Г§Г Г¤Г ГҐГ¬ Г±ГЄГ®Г°Г®Г±ГІГј
-				previous_task_done = false;//ГўГ»Г±ГІГ ГўГ«ГїГҐГ¬ ГґГ«Г ГЈ Г®Г¦ГЁГ¤Г Г­ГЁГї Г§Г ГўГҐГ°ГёГҐГ­ГЁГї Г§Г Г¤Г Г­ГЁГї
+				path(moveStage[0].forthcoming_distance0);//задаем путь
+				move(moveStage[0].speed0,moveStage[0].speed1);//задаем скорость
+				previous_task_done = false;//выставляем флаг ожидания завершения задания
 			}
 		}
 	}
@@ -256,7 +256,7 @@ void Robot::sendCommands()
 
 void Robot::correlation()
 {
-	for(int i = 0; i < lidar.object.size(); i++)//Г¤Г«Гї ГЄГ Г¦Г¤Г®ГЈГ® Г­Г Г©Г¤ГҐГ­Г­Г®ГЈГ® ГіГ·Г Г±ГІГЄГ  (ГЇГ°ГҐГ¤ГЇГ®Г«Г ГЈГ ГҐГ¬Г®ГЈГ® Г®ГЎГєГҐГЄГІГ )
+	for(int i = 0; i < lidar.object.size(); i++)//для каждого найденного участка (предполагаемого объекта)
 	{
 		//lidar.object[i].points.push_back(lidar.position.location);
 		lidar.object[i].correlation = matchShapes(lidar.object[i].points, Stand::pattern, CV_CONTOURS_MATCH_I3, 0.0);
